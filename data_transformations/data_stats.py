@@ -1,5 +1,7 @@
 """
 Calculate simple statistics for input data series.
+
+1. Add declining weight parameters to standard deviation and correlation.
 """
 import numpy as np
 

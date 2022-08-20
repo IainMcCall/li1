@@ -1,5 +1,7 @@
 """
 Provides functions to parse the input time-series data.
+
+1. Include method to replace 0s at start with the next available value. - Will get rid of numpy error.
 """
 from datetime import datetime
 import os

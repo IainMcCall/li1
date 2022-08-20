@@ -1,6 +1,7 @@
 """
 Provides Python object functions.
 """
+CODE_BATCHES = ['update_data', 'run_models']
 WEEKDAY_MAPPING = {'monday': 0,
                    'tuesday': 1,
                    'wednesday': 2,
@@ -18,3 +19,4 @@ TRAIN_ATTRIBUTES = {'eq_index_close': ['log'],
                     'ir_rate': ['absolute'],
                     'commodity_price': ['log']
                     }
+LOSS_METHODS = ['mae', 'mse', 'huber']
