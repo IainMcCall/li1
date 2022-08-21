@@ -1,10 +1,7 @@
 """
 Provides functions to convert levels into returns.
 """
-import os
-
 import numpy as np
-import pandas as pd
 
 
 def ff_return(x, h, ff):
@@ -19,11 +16,11 @@ def ff_return(x, h, ff):
         (ndarray): Output levels.
     """
     if ff == 'log':
-        return np.log(x[:-h] / x[h:])
+        return np.log(x[h:] / x[:-h])
     elif ff == 'relative':
-        return x[:-h] / x[h:] - 1
+        return x[h:] / x[:-h] - 1
     elif ff == 'absolute':
-        return x[:-h] - x[h:]
+        return x[h:] - x[:-h]
 
 
 def convert_levels_to_returns(ts, ff, h):

@@ -35,9 +35,12 @@ def run_all_models(x, y, labels, params):
         logger.info('Setting up test data for ' + p)
         y_p = y[p].copy()
         x_p = x[p].copy()
+
+        pd.DataFrame(y_p).to_csv(os.path.join(outpath, p + '_y.csv'))
+        pd.DataFrame(x_p).to_csv(os.path.join(outpath, p + '_x.csv'))
+
         labels_p = labels[p].copy()
         k_folds = create_k_folds(x_p.copy(), y_p.copy(), params['test']['k_folds'], params['test']['shuffle_folds'])
-
         logger.info('Running model 1: OLS regression; For ' + p)
         reg_results, test_results = run_regression_model(x_p, y_p, k_folds, labels_p, p, params)
         all_model_results['m1_ols'].append(reg_results)
@@ -48,6 +51,9 @@ def run_all_models(x, y, labels, params):
 
 
         logger.info('Running model 3: Lasso regression; For ' + p)
+
+
+        logger.info('Running model 4: Elastic net; For ' + p)
 
 
     # Output results

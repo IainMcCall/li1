@@ -4,6 +4,7 @@ Provides analytic function to run a regression model.
 import logging
 
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 import CONFIG
@@ -53,8 +54,9 @@ def run_regression_model(x, y, train_folds, labels, rf, params):
     ky_hat_all = np.array(ky_hat_all)
     ky_all = np.array(ky_all)
     k_errors = ky_hat_all - ky_all
-    model_losses = {'r2_os': out_of_sample_r2(ky_hat_all, ky_all)}
+    model_losses = {'r2_os': out_of_sample_r2(ky_all, ky_hat_all)}
+    huber_delta = params['test']['huber_delta'] * np.std(ky_all, ddof=1)
     for i in CONFIG.LOSS_METHODS:
-        model_losses[i + '_loss'] = loss_function(k_errors, i, params['test']['huber_delta'])
+        model_losses[i + '_loss'] = loss_function(k_errors, i, huber_delta)
 
     return reg_results, model_losses

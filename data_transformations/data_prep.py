@@ -2,7 +2,7 @@
 Provides functions for final data preparation (x, y) to use in the models.
 
 1. Add options to parse model data to remove weeks with a dividend date or earnings announcement from the sample.
-2.
+2. Filter input dates to only include business dates - Also for upstream in extraction.
 """
 import numpy as np
 
@@ -26,9 +26,9 @@ def standardise_array(x, center=True, means=None, stdevs=None):
         (ndarray): Standardisation standard deviations.
     """
     if means is None:
-        means = np.mean(x, axis=0) if center else np.zeros(x.shape[1])
+        means = np.mean(x, ddof=1, axis=0) if center else np.zeros(x.shape[1])
     if stdevs is None:
-        stdevs = np.std(x, axis=0)
+        stdevs = np.std(x, ddof=1, axis=0)
     return (x - means) / stdevs, means, stdevs
 
 

@@ -19,4 +19,4 @@ TRAIN_ATTRIBUTES = {'eq_index_close': ['log'],
                     'ir_rate': ['absolute'],
                     'commodity_price': ['log']
                     }
-LOSS_METHODS = ['mae', 'mse', 'huber']
+LOSS_METHODS = ['mae', 'mse', 'huber', 'phuber']

@@ -39,9 +39,9 @@ def extract_model_data(infile, fill_method='prev'):
     all_data.index = [datetime.strptime(str(d), '%d/%m/%Y').date() for d in all_data.index]
     all_data.replace(0, np.nan, inplace=True)
     if fill_method == 'prev':
-        all_data = all_data.fillna(method='bfill')
-    elif fill_method == 'next':
         all_data = all_data.fillna(method='ffill')
+    elif fill_method == 'next':
+        all_data = all_data.fillna(method='bfill')
     return all_data
 
 
