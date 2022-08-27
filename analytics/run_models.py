@@ -6,7 +6,7 @@ import os
 
 import pandas as pd
 
-from analytics.regression_model import run_regression_model
+from analytics.regressions.ols import OLS
 from analytics.testing import create_k_folds
 
 logger = logging.getLogger('main')
@@ -41,11 +41,14 @@ def run_all_models(x, y, labels, params):
 
         labels_p = labels[p].copy()
         k_folds = create_k_folds(x_p.copy(), y_p.copy(), params['test']['k_folds'], params['test']['shuffle_folds'])
+
         logger.info('Running model 1: OLS regression; For ' + p)
-        reg_results, test_results = run_regression_model(x_p, y_p, k_folds, labels_p, p, params)
+        m = OLS(x_p, y_p, params)
+        reg_results, test_results = m.run_regression_model(k_folds)
         all_model_results['m1_ols'].append(reg_results)
         for i in test_results:
             all_test_results.at[p, 'm1_' + i] = test_results[i]
+        # Predictions...
 
         logger.info('Running model 2: Ridge forward stepwise regression; For ' + p)
 
@@ -57,6 +60,6 @@ def run_all_models(x, y, labels, params):
 
 
     # Output results
-    pd.DataFrame(all_model_results['m1_ols'], index=targets, columns=['score', 'intercept'] + list(labels[targets[0]])).T.\
-        to_csv(os.path.join(outpath, 'm1_ols_results.csv'))
+    pd.DataFrame(all_model_results['m1_ols'], index=targets, columns=['mean', 'stdev', 'score', 'intercept'] + list(
+        labels[targets[0]])).T.to_csv(os.path.join(outpath, 'm1_ols_results.csv'))
     all_test_results.to_csv(os.path.join(outpath, 'model_test_stats.csv'))

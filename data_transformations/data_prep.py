@@ -26,7 +26,7 @@ def standardise_array(x, center=True, means=None, stdevs=None):
         (ndarray): Standardisation standard deviations.
     """
     if means is None:
-        means = np.mean(x, ddof=1, axis=0) if center else np.zeros(x.shape[1])
+        means = np.mean(x, axis=0) if center else np.zeros(x.shape[1])
     if stdevs is None:
         stdevs = np.std(x, ddof=1, axis=0)
     return (x - means) / stdevs, means, stdevs

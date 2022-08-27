@@ -29,8 +29,10 @@ def extract_model_configs():
                        'huber_delta': config.getfloat('TESTING_PARAMETERS', 'HUBER_DELTA')
                        },
               'm1_ols': {'intercept': config.getboolean('M1_REGRESSION_PARAMETERS', 'INTERCEPT'),
-                         'standardise': config.getboolean('M1_REGRESSION_PARAMETERS', 'STANDARDIZE'),
-                         'center': config.getboolean('M1_REGRESSION_PARAMETERS', 'CENTER')
+                         'train_standardize': config.getboolean('M1_REGRESSION_PARAMETERS', 'TRAIN_STANDARDIZE'),
+                         'train_center': config.getboolean('M1_REGRESSION_PARAMETERS', 'TRAIN_CENTER'),
+                         'target_standardize': config.getboolean('M1_REGRESSION_PARAMETERS', 'TARGET_STANDARDIZE'),
+                         'target_center': config.getboolean('M1_REGRESSION_PARAMETERS', 'TARGET_CENTER')
                          }
               }
     return params

@@ -43,6 +43,24 @@ def correlation(x1, x2, w=None):
     return covar / (np.sqrt(var1) * np.sqrt(var2))
 
 
+def generate_weights(n, cutoff, decline_method, final_weight=0.0):
+    """
+    Generate weights using a specified method.
+
+    Args:
+        n (int): Length of weight vector.
+        cutoff (int): Point beyond which weights decline.
+        decline_method (str): 'linear', 'exponential'.
+        final_weight (float): Final weight to decrease to.
+    Returns:
+        (ndarray): Weights to use in calculation. These will sum up to 1.
+    """
+    w = np.array(n)
+    for i in range(n - cutoff):
+        w[i] = 1
+
+
+
 def overlapping_vols(returns, p, df):
     """
     For a matrix of inputs calculate historical overlapping volatilities.
