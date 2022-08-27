@@ -62,23 +62,26 @@ def provide_model_data(returns, p, ret_lags, mvol_lags, corr_lags, name_index):
     Returns:
         (dict): X values to use in model.
         (dict): Y values to use in model.
+        (dict): X new values to use in model.
     """
     y = {}
     x = {}
+    x_new = {}
     labels = {}
     for r in returns['target_f']:
         y[r] = returns['target_f'][r].values[-p:]
-        x_r = returns['train_f'][-p-1:-1].copy()
+        x_r = returns['train_f'][-p-1:].copy()
         for i in ret_lags:
-            x_r['ret_lag' + str(i)] = returns['target_f'][r].values[-p-i:-i]
+            x_r['ret_lag' + str(i)] = returns['target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         for i in mvol_lags:
-            x_r['mvol_lag'] = returns['vol_target_f'][r].values[-p-i:-i]
-            x_r['mvol_lag_index'] = returns['vol_train_f'][name_index + '_close'].values[-p-i:-i]
+            x_r['mvol_lag'] = returns['vol_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
+            x_r['mvol_lag_index'] = returns['vol_train_f'][name_index + '_close'].values[-p-i:-i+1 if -i+1 != 0 else None]
         for i in corr_lags:
-            x_r['index_correlation_lag'] = returns['correlation_target_f'][r].values[-p-i:-i]
+            x_r['index_correlation_lag'] = returns['correlation_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         labels[r] = x_r.columns
-        x[r] = np.array(x_r)
-    return x, y, labels
+        x[r] = np.array(x_r[:-1])
+        x_new[r] = np.array(x_r.iloc[-1])
+    return x, y, x_new, labels
 
 
 def run_data_transform(params):
@@ -90,6 +93,7 @@ def run_data_transform(params):
     Returns:
         (dict): X Training values for each name to train.
         (dict): Y Target values for each name to train.
+        (dict): X New values for each name to use in prediction.
         (dict): Labels for each training name.
     """
     train_ts = extract_model_data(params['train_path'])

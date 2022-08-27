@@ -24,8 +24,8 @@ def main():
     if args.process == 'update_data':
         logger.info('Updating data')
     elif args.process == 'run_models':
-        x, y, labels = run_data_transform(params)
-        run_all_models(x, y, labels, params)
+        x, y, x_new, labels = run_data_transform(params)
+        run_all_models(x, y, x_new, labels, params)
 
 
 if __name__ == "__main__":

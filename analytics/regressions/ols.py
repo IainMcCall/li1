@@ -27,48 +27,59 @@ class OLS:
         self.y = y.copy()
         self.test_params = params['test']
         self.ols_params = params['m1_ols']
+        self.reg = None
+        self.xmeans = None
+        self.ymeans = None
+        self.xstdevs = None
+        self.ystdevs = None
 
-    def run_regression_model(self, train_folds):
+    def run_ols(self):
         """
-        Run and train a regression model.
+        Run simple OLS regression model.
 
+        Returns:
+            (list): Regression results.
+        """
+        logger.info('Running regression on all input data...')
+        if self.ols_params['train_standardize']:
+            self.x, self.xmeans, self.xstdevs = standardise_array(self.x.copy(), center=self.ols_params['train_center'])
+        if self.ols_params['target_standardize']:
+            self.y, self.ymeans, self.ystdevs = standardise_array(self.y.copy(), center=self.ols_params['target_center'])
+
+        self.reg = LinearRegression(fit_intercept=self.ols_params['intercept']).fit(self.x, self.y)
+        reg_results = [self.ymeans, self.ystdevs, self.reg.score(self.x, self.y), self.reg.intercept_]
+        reg_results.extend(self.reg.coef_)
+        return reg_results
+
+    def ktest_ols(self, train_folds):
+        """
+        Calculate k-fold losses from a regression model.
+
+        Args:
+            train_folds (dict):
         Returns:
             (list): Regression results.
             (dict): Model stats loss.
         """
-        target_standardize = self.ols_params['target_standardize']
-        train_standardize = self.ols_params['train_standardize']
-        intercept = self.ols_params['intercept']
-        if train_standardize:
-            self.x, xmeans, xstdevs = standardise_array(self.x.copy(), center=self.ols_params['train_center'])
-        ymeans, ystdevs = None, None
-        if target_standardize:
-            self.y, ymeans, ystdevs = standardise_array(self.y.copy(), center=self.ols_params['target_center'])
-
-        logger.info('Running regression on all input data...')
-        reg = LinearRegression(fit_intercept=intercept).fit(self.x, self.y)
-        reg_results = [ymeans, ystdevs, reg.score(self.x, self.y), reg.intercept_]
-        reg_results.extend(reg.coef_)
-
         ky_hat_all = []
         ky_all = []
         for k in range(1, self.test_params['k_folds'] + 1):
             logger.info('Performing k-test for fold: ' + str(k))
             xk_train, yk_train = train_folds['train_' + str(k)].copy()
             xk_test, yk_test = train_folds['test_' + str(k)].copy()
-            if train_standardize:
-                xk_train, a, b = standardise_array(xk_train, means=xmeans, stdevs=xstdevs)
-                xk_test, a, b = standardise_array(xk_test, means=xmeans, stdevs=xstdevs)
-            if target_standardize:
-                yk_train, a, b = standardise_array(yk_train, means=ymeans, stdevs=ystdevs)
-                yk_test, a, b = standardise_array(yk_test, means=ymeans, stdevs=ystdevs)
-            reg = LinearRegression(fit_intercept=intercept).fit(xk_train, yk_train)
+            if self.ols_params['train_standardize']:
+                xk_train, a, b = standardise_array(xk_train, means=self.xmeans, stdevs=self.xstdevs)
+                xk_test, a, b = standardise_array(xk_test, means=self.xmeans, stdevs=self.xstdevs)
+            if self.ols_params['target_standardize']:
+                yk_train, a, b = standardise_array(yk_train, means=self.ymeans, stdevs=self.ystdevs)
+                yk_test, a, b = standardise_array(yk_test, means=self.ymeans, stdevs=self.ystdevs)
+            reg = LinearRegression(fit_intercept=self.ols_params['intercept']).fit(xk_train, yk_train)
 
             y_pred = reg.predict(xk_test)
             y_test = yk_test
-            if target_standardize:
-                y_pred = de_standardise_array(y_pred, ymeans, ystdevs)
-                y_test = de_standardise_array(y_test, ymeans, ystdevs)
+            if self.ols_params['target_standardize']:
+                y_pred = de_standardise_array(y_pred, self.ymeans, self.ystdevs)
+                y_test = de_standardise_array(y_test, self.ymeans, self.ystdevs)
             ky_hat_all.extend(y_pred)
             ky_all.extend(y_test)
         ky_hat_all = np.array(ky_hat_all)
@@ -78,5 +89,20 @@ class OLS:
         huber_delta = self.test_params['huber_delta'] * np.std(ky_all, ddof=1)
         for i in CONFIG.LOSS_METHODS:
             model_losses[i + '_loss'] = loss_function(k_errors, i, huber_delta)
+        return model_losses
 
-        return reg_results, model_losses
+    def predict_ols(self, x_new):
+        """
+        Predict values from trained OLS regression model.
+
+        Args:
+            x_new (ndarray): New values to train to use in prediction.
+        Returns:
+            (float): Predicted value.
+        """
+        if self.ols_params['train_standardize']:
+            x_new, a, b = standardise_array(x_new, means=self.xmeans, stdevs=self.xstdevs)
+        y_pred = self.reg.predict(x_new.reshape(1, -1))[0]
+        if self.ols_params['target_standardize']:
+            y_pred = de_standardise_array(y_pred, self.ymeans, self.ystdevs)
+        return y_pred
