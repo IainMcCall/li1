@@ -29,7 +29,7 @@ def forward_stepwise_selection(x, y, rlambda, stop_max=None, stop_stat='adj_r2')
     p = x.shape[1]
     for k in range(1, min(p, stop_max) + 1):
         stats = []
-        for i in range(p):
+        for i in [p1 for p1 in range(p) if p1 not in regressors]:
             test_regressors = regressors.copy()
             test_regressors.append(i)
             if rlambda == 0 or k == 1:
@@ -56,13 +56,15 @@ class ForwardRidge:
         x (ndarray): Training data.
         y (ndarray): Target data.
         params (dict): Model parameters to use in the old regression.
+        labels (list): Names for target data.
     """
-    def __init__(self, x, y, params):
+    def __init__(self, x, y, params, labels):
         self.x = x.copy()
         self.y = y.copy()
         self.x_subset = None
         self.test_params = params['test']
         self.model_params = params['m2_fridge']
+        self.labels = labels
         self.reg = None
         self.xmeans = None
         self.ymeans = None
@@ -131,10 +133,16 @@ class ForwardRidge:
             self.reg = Ridge(fit_intercept=self.model_params['intercept'], alpha=self.rlambda)
         self.reg.fit(self.x_subset, self.y)
 
-        reg_results = [self.ymeans, self.ystdevs, self.reg.score(self.x_subset, self.y)]
-        reg_results.extend(self.regressors)
+        reg_results = [self.ymeans, self.ystdevs, self.reg.score(self.x_subset, self.y), self.rlambda]
+        p = self.model_params['max_regressors']
+        k = len(self.regressors)
+        reg_results.extend([self.labels[i] for i in self.regressors])
+        for i in range(p-k):
+            reg_results.append('')
         reg_results.append(self.reg.intercept_)
-        reg_results.extend(self.reg.coef_)
+        reg_results.extend([i for i in list(self.reg.coef_)])
+        for i in range(p-k):
+            reg_results.append('')
         return reg_results
 
     def ktest_ridge(self, train_folds):
