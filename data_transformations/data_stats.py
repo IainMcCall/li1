@@ -60,7 +60,6 @@ def generate_weights(n, cutoff, decline_method, final_weight=0.0):
         w[i] = 1
 
 
-
 def overlapping_vols(returns, p, df):
     """
     For a matrix of inputs calculate historical overlapping volatilities.

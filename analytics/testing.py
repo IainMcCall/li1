@@ -66,3 +66,19 @@ def out_of_sample_r2(y, y_predict):
         (float): Out-of-sample R-Squared.
     """
     return 1 - (np.sum(np.square(y_predict - y)) / np.sum(np.square(y - np.mean(y))))
+
+
+def adjusted_r2(y, y_predict, p):
+    """
+    For a target vector y and predicted vector y_hat, calculate the errors.
+
+    Args:
+        y (ndarray): Actual values for y.
+        y_predict (ndarray): Predicted values for y.
+        p (int): Number of regressors.
+    Returns:
+        (float): Out-of-sample R-Squared.
+    """
+    n = len(y)
+    r2 = out_of_sample_r2(y, y_predict)
+    return 1 - (1 - r2) * (n - 1) / (n - p - 1)

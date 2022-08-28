@@ -7,6 +7,7 @@ import os
 import pandas as pd
 
 from analytics.regressions.ols import OLS
+from analytics.regressions.ridge import ForwardRidge
 from analytics.testing import create_k_folds
 
 logger = logging.getLogger('main')
@@ -54,6 +55,13 @@ def run_all_models(x, y, x_new, labels, params):
         all_predictions.at[p, 'm1'] = m.predict_ols(x_new[p])
 
         logger.info('Running model 2: Ridge forward stepwise regression; For ' + p)
+        m = ForwardRidge(x_p, y_p, params)
+        test_lambda, lambda_errors = m.calibrate_lambda()
+        ridge_results = m.run_ridge()
+        test_results = m.ktest_ridge(k_folds)
+        for i in test_results:
+            all_test_results.at[p, 'm2_' + i] = test_results[i]
+        all_predictions.at[p, 'm2'] = m.predict_ridge(x_new[p])
 
 
         logger.info('Running model 3: Lasso regression; For ' + p)

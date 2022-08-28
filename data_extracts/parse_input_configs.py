@@ -6,7 +6,7 @@ import configparser
 
 def extract_model_configs():
     """
-    Parse the model configs.
+    Parse the model configs into a dict with Python types.
 
     Returns:
         (dict): Parameters to use for models.
@@ -28,11 +28,25 @@ def extract_model_configs():
                        'shuffle_folds': config.getboolean('TESTING_PARAMETERS', 'SHUFFLE_FOLDS'),
                        'huber_delta': config.getfloat('TESTING_PARAMETERS', 'HUBER_DELTA')
                        },
-              'm1_ols': {'intercept': config.getboolean('M1_REGRESSION_PARAMETERS', 'INTERCEPT'),
-                         'train_standardize': config.getboolean('M1_REGRESSION_PARAMETERS', 'TRAIN_STANDARDIZE'),
-                         'train_center': config.getboolean('M1_REGRESSION_PARAMETERS', 'TRAIN_CENTER'),
-                         'target_standardize': config.getboolean('M1_REGRESSION_PARAMETERS', 'TARGET_STANDARDIZE'),
-                         'target_center': config.getboolean('M1_REGRESSION_PARAMETERS', 'TARGET_CENTER')
-                         }
+              'm1_ols': {'intercept': config.getboolean('M1_OLS_PARAMETERS', 'INTERCEPT'),
+                         'train_standardize': config.getboolean('M1_OLS_PARAMETERS', 'TRAIN_STANDARDIZE'),
+                         'train_center': config.getboolean('M1_OLS_PARAMETERS', 'TRAIN_CENTER'),
+                         'target_standardize': config.getboolean('M1_OLS_PARAMETERS', 'TARGET_STANDARDIZE'),
+                         'target_center': config.getboolean('M1_OLS_PARAMETERS', 'TARGET_CENTER')
+                         },
+              'm2_fridge': {'intercept': config.getboolean('M2_FRIDGE_PARAMETERS', 'INTERCEPT'),
+                            'train_standardize': config.getboolean('M2_FRIDGE_PARAMETERS', 'TRAIN_STANDARDIZE'),
+                            'train_center': config.getboolean('M2_FRIDGE_PARAMETERS', 'TRAIN_CENTER'),
+                            'target_standardize': config.getboolean('M2_FRIDGE_PARAMETERS', 'TARGET_STANDARDIZE'),
+                            'target_center': config.getboolean('M2_FRIDGE_PARAMETERS', 'TARGET_CENTER'),
+                            'max_regressors': config.getint('M2_FRIDGE_PARAMETERS', 'MAX_REGRESSORS'),
+                            'lambda_loss': config['M2_FRIDGE_PARAMETERS']['LAMBDA_LOSS'],
+                            'min_lambda': config.getfloat('M2_FRIDGE_PARAMETERS', 'MIN_LAMBDA'),
+                            'max_lambda': config.getfloat('M2_FRIDGE_PARAMETERS', 'MAX_LAMBDA'),
+                            'lambda_step_size': config.getfloat('M2_FRIDGE_PARAMETERS', 'LAMBDA_STEP_SIZE'),
+                            'k_folds': config.getint('M2_FRIDGE_PARAMETERS', 'K_FOLDS'),
+                            'shuffle_folds': config.getboolean('M2_FRIDGE_PARAMETERS', 'SHUFFLE_FOLDS'),
+                            'huber_delta': config.getfloat('M2_FRIDGE_PARAMETERS', 'HUBER_DELTA')
+                            }
               }
     return params
