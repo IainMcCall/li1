@@ -13,7 +13,7 @@ from analytics.testing import loss_function, out_of_sample_r2
 logger = logging.getLogger('main')
 
 
-class OLS:
+class LiOLS:
     """
     Provides simple regression functions.
 

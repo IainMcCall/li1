@@ -47,6 +47,35 @@ def extract_model_configs():
                             'k_folds': config.getint('M2_FRIDGE_PARAMETERS', 'K_FOLDS'),
                             'shuffle_folds': config.getboolean('M2_FRIDGE_PARAMETERS', 'SHUFFLE_FOLDS'),
                             'huber_delta': config.getfloat('M2_FRIDGE_PARAMETERS', 'HUBER_DELTA')
-                            }
+                            },
+              'm3_lasso': {'intercept': config.getboolean('M3_LASSO_PARAMETERS', 'INTERCEPT'),
+                           'train_standardize': config.getboolean('M3_LASSO_PARAMETERS', 'TRAIN_STANDARDIZE'),
+                           'train_center': config.getboolean('M3_LASSO_PARAMETERS', 'TRAIN_CENTER'),
+                           'target_standardize': config.getboolean('M3_LASSO_PARAMETERS', 'TARGET_STANDARDIZE'),
+                           'target_center': config.getboolean('M3_LASSO_PARAMETERS', 'TARGET_CENTER'),
+                           'lambda_loss': config['M3_LASSO_PARAMETERS']['LAMBDA_LOSS'],
+                           'min_lambda': config.getfloat('M3_LASSO_PARAMETERS', 'MIN_LAMBDA'),
+                           'max_lambda': config.getfloat('M3_LASSO_PARAMETERS', 'MAX_LAMBDA'),
+                           'lambda_step_size': config.getfloat('M3_LASSO_PARAMETERS', 'LAMBDA_STEP_SIZE'),
+                           'k_folds': config.getint('M3_LASSO_PARAMETERS', 'K_FOLDS'),
+                           'shuffle_folds': config.getboolean('M3_LASSO_PARAMETERS', 'SHUFFLE_FOLDS'),
+                           'huber_delta': config.getfloat('M3_LASSO_PARAMETERS', 'HUBER_DELTA')
+                           },
+              'm4_el': {'intercept': config.getboolean('M4_EL_PARAMETERS', 'INTERCEPT'),
+                        'train_standardize': config.getboolean('M4_EL_PARAMETERS', 'TRAIN_STANDARDIZE'),
+                        'train_center': config.getboolean('M4_EL_PARAMETERS', 'TRAIN_CENTER'),
+                        'target_standardize': config.getboolean('M4_EL_PARAMETERS', 'TARGET_STANDARDIZE'),
+                        'target_center': config.getboolean('M4_EL_PARAMETERS', 'TARGET_CENTER'),
+                        'lambda_loss': config['M4_EL_PARAMETERS']['LAMBDA_LOSS'],
+                        'min_lambda': config.getfloat('M4_EL_PARAMETERS', 'MIN_LAMBDA'),
+                        'max_lambda': config.getfloat('M4_EL_PARAMETERS', 'MAX_LAMBDA'),
+                        'lambda_step_size': config.getfloat('M4_EL_PARAMETERS', 'LAMBDA_STEP_SIZE'),
+                        'min_ratio': config.getfloat('M4_EL_PARAMETERS', 'MIN_RATIO'),
+                        'max_ratio': config.getfloat('M4_EL_PARAMETERS', 'MAX_RATIO'),
+                        'ratio_step_size': config.getfloat('M4_EL_PARAMETERS', 'RATIO_STEP_SIZE'),
+                        'k_folds': config.getint('M4_EL_PARAMETERS', 'K_FOLDS'),
+                        'shuffle_folds': config.getboolean('M4_EL_PARAMETERS', 'SHUFFLE_FOLDS'),
+                        'huber_delta': config.getfloat('M4_EL_PARAMETERS', 'HUBER_DELTA')
+                        }
               }
     return params

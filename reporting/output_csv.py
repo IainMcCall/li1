@@ -35,17 +35,28 @@ def output_model_csv_reports(all_predictions, all_test_results, all_model_result
     """
     m1_dir = try_create_dir(outpath, 'm1_ols')
     m2_dir = try_create_dir(outpath, 'm2_fridge')
+    m3_dir = try_create_dir(outpath, 'm3_lasso')
+    m4_dir = try_create_dir(outpath, 'm4_el')
 
     logger.info('Output model results to csv...')
-    pd.DataFrame(all_model_results['m1_ols'], index=targets, columns=['mean', 'stdev', 'score', 'intercept'] + list(
-        labels[targets[0]])).T.to_csv(os.path.join(m1_dir, 'm1_ols_results.csv'))
+    pd.DataFrame(all_model_results['m1_ols'], index=targets,
+                 columns=['mean', 'stdev', 'score', 'intercept'] +
+                         list(labels[targets[0]])).T.to_csv(os.path.join(m1_dir, 'm1_ols_results.csv'))
     ridge_p = range(1, params['m2_fridge']['max_regressors'] + 1)
     pd.DataFrame(all_model_results['m2_ridge'], index=targets,
                  columns=['mean', 'stdev', 'score', 'lambda'] + ['regressor_' + str(i) for i in ridge_p] + ['intercept'] +
                          ['beta_' + str(i) for i in ridge_p]).T.to_csv(os.path.join(m2_dir, 'm2_ridge_results.csv'))
+    pd.DataFrame(all_model_results['m3_lasso'], index=targets,
+                 columns=['mean', 'stdev', 'score', 'lambda', 'intercept'] +
+                         list(labels[targets[0]])).T.to_csv(os.path.join(m3_dir, 'm3_lasso_results.csv'))
+    pd.DataFrame(all_model_results['m4_el'], index=targets,
+                 columns=['mean', 'stdev', 'score', 'lambda', 'l1_ratio', 'intercept'] +
+                         list(labels[targets[0]])).T.to_csv(os.path.join(m4_dir, 'm4_el_results.csv'))
 
     logger.info('Output model calibrations to csv...')
     all_model_calibs['m2_ridge'].to_csv(os.path.join(m2_dir, 'm2_ridge_calibrations.csv'))
+    all_model_calibs['m3_lasso'].to_csv(os.path.join(m3_dir, 'm3_lasso_calibrations.csv'))
+    all_model_calibs['m4_el'].to_csv(os.path.join(m4_dir, 'm4_el_calibrations.csv'))
 
     logger.info('Output summary results to csv...')
     all_test_results.to_csv(os.path.join(outpath, 'model_tests.csv'))
