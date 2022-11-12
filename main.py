@@ -7,6 +7,7 @@ import logging
 import CONFIG
 from data_extracts.parse_input_configs import extract_model_configs
 from data_transformations.data_prep import run_data_transform
+from data_extracts.run_data_update import update_model_data
 from analytics.run_models import run_all_models
 
 
@@ -22,7 +23,7 @@ def main():
     params = extract_model_configs()
 
     if args.process == 'update_data':
-        logger.info('Updating data')
+        update_model_data(args.date, params)
     elif args.process == 'run_models':
         x, y, x_new, labels = run_data_transform(params)
         run_all_models(x, y, x_new, labels, params)

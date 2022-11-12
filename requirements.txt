@@ -1,4 +1,7 @@
+holidays==0.15
 pandas==1.4.3
 numpy==1.23.0
 scipy==1.9.0
 sklearn==1.1.2
+yfinance==0.1.74
+forex_python==1.8

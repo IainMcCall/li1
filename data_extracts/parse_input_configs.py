@@ -2,6 +2,7 @@
 Provides functions to parse input configurations into dicts.
 """
 import configparser
+from datetime import datetime
 
 
 def extract_model_configs():
@@ -14,6 +15,7 @@ def extract_model_configs():
     config = configparser.ConfigParser()
     config.read('config.ini')
     params = {'outpath': config['PATHS']['OUTPATH'],
+              'target_names': config['PATHS']['TARGET_NAMES'],
               'train_path': config['PATHS']['TRAIN_TS'],
               'target_path': config['PATHS']['TARGET_TS'],
               'weekday': config['MODEL_PARAMETERS']['DAY_OF_WEEK'],
@@ -24,6 +26,14 @@ def extract_model_configs():
               'return_lags': [int(i) for i in config['MODEL_PARAMETERS']['RETURN_LAGS'].split(',')],
               'vol_lags': [int(i) for i in config['MODEL_PARAMETERS']['VOL_LAGS'].split(',')],
               'corr_lags': [int(i) for i in config['MODEL_PARAMETERS']['CORRELATION_LAGS'].split(',')],
+              'data': {'platinum_regions': [str(i) for i in config['DATA_PARAMETERS']['PLATINUM_REGIONS'].split(',')],
+                       'start_date': datetime.strptime(config['DATA_PARAMETERS']['START_DATE'], '%Y-%m-%d').date(),
+                       'equity_update_all': config.getboolean('DATA_PARAMETERS', 'UPDATE_ALL_EQUITY_DATA'),
+                       'fx_update_all': config.getboolean('DATA_PARAMETERS', 'UPDATE_ALL_FX_DATA'),
+                       'equity_source': config['DATA_PARAMETERS']['EQUITY_SOURCE'],
+                       'equity_price': config['DATA_PARAMETERS']['EQUITY_PRICE'],
+                       'equity_volume': config['DATA_PARAMETERS']['EQUITY_VOLUME'],
+                       },
               'test': {'k_folds': config.getint('TESTING_PARAMETERS', 'K_FOLDS'),
                        'shuffle_folds': config.getboolean('TESTING_PARAMETERS', 'SHUFFLE_FOLDS'),
                        'huber_delta': config.getfloat('TESTING_PARAMETERS', 'HUBER_DELTA')

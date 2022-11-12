@@ -20,3 +20,8 @@ TRAIN_ATTRIBUTES = {'eq_index_close': ['log'],
                     'commodity_price': ['log']
                     }
 LOSS_METHODS = ['mae', 'mse', 'huber', 'phuber']
+EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',
+                          'FTSE100': 'FTSE',
+                          'DJEURO50': 'STOXX50E',
+                          'NIKKEI225': 'N225'}
+TRAIN_CCYS = ['GBP', 'EUR', 'JPY', 'AUD']
