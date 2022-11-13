@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import Ridge, LinearRegression
 
 import CONFIG
-from data_transformations.data_prep import standardise_array, de_standardise_array
+from data_extracts.transformations.data_prep import standardise_array, de_standardise_array
 from analytics.testing import create_k_folds, adjusted_r2, loss_function, out_of_sample_r2
 
 logger = logging.getLogger('main')
