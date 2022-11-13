@@ -6,9 +6,9 @@ Provides functions for final data preparation (x, y) to use in the models.
 """
 import numpy as np
 
-from data_extracts.extracts.parse_input_ts import extract_model_data, ff_determination, filter_day
-from data_extracts.transformations.data_returns import convert_levels_to_returns
-from data_extracts.transformations.data_stats import overlapping_vols, overlapping_correlation
+from data.extracts.parse_input_ts import extract_model_data, ff_determination, filter_day
+from data.transformations.data_returns import convert_levels_to_returns
+from data.transformations.data_stats import overlapping_vols, overlapping_correlation
 
 
 def standardise_array(x, center=True, means=None, stdevs=None):

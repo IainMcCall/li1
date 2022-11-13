@@ -5,9 +5,9 @@ import argparse
 import logging
 
 import CONFIG
-from data_extracts.parse_input_configs import extract_model_configs
-from data_transformations.data_prep import run_data_transform
-from data_extracts.run_data_update import update_model_data
+from data.extracts.parse_input_configs import extract_model_configs
+from data.transformations.data_prep import run_data_transform
+from data.extracts.run_data_update import update_model_data
 from analytics.run_models import run_all_models
 
 

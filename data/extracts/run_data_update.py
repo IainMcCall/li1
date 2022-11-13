@@ -4,13 +4,13 @@ Provides functions to update input data.
 from datetime import datetime
 import logging
 
-from data_extracts.extracts.data_utils import extract_target_names, get_last_training_date, get_platinum_dates
-from data_extracts.extracts.comm import get_all_comm_data
-from data_extracts.extracts.equity import get_equity_data
-from data_extracts.extracts.fx import get_all_fx_data
-from data_extracts.extracts.ir import get_all_ir_data
-from data_extracts.extracts.inflation import get_all_inflation_data
-from data_extracts.extracts.write_data import write_training_data, write_target_data
+from data.extracts.data_utils import extract_target_names, get_last_training_date, get_platinum_dates
+from data.extracts.comm import get_all_comm_data
+from data.extracts.equity import get_equity_data
+from data.extracts.fx import get_all_fx_data
+from data.extracts.ir import get_all_ir_data
+from data.extracts.inflation import get_all_inflation_data
+from data.extracts.write_data import write_training_data, write_target_data
 
 import CONFIG
 
