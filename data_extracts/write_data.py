@@ -55,7 +55,8 @@ def add_data_to_master(in_data, master_data, update_dates, update_all_dates, max
     return master_data
 
 
-def write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates, params, update_dates, max_start_date):
+def write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates, comm_prices, inflation_rates, params,
+                        update_dates, max_start_date):
     """
     Writes training data to csv files.
 
@@ -64,7 +65,9 @@ def write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates
         index_price (pandas.core.Frame.DataFrame): Historical index prices.
         index_volume (pandas.core.Frame.DataFrame): Historical index volume.
         fx_rates (pandas.core.Frame.DataFrame): Historical daily fx rates.
-        fx_rates (pandas.core.Frame.DataFrame): Historical daily ir rates.
+        ir_rates (pandas.core.Frame.DataFrame): Historical daily ir rates.
+        comm_prices (pandas.core.Frame.DataFrame): Historical daily commodity prices.
+        inflation_rates (pandas.core.Frame.DataFrame): Historical daily inflation rates.
         params (dict): Parameters.
         update_dates (list,date): List of dates to extract data from.
         max_start_date (date): Maximum start date to use.
@@ -85,6 +88,10 @@ def write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates
                                        max_start_date, 'fx_spot')
     training_data = add_data_to_master(ir_rates, training_data, update_dates, params['data']['ir_update_all'],
                                        max_start_date, 'ir_yield')
+    training_data = add_data_to_master(comm_prices, training_data, update_dates, params['data']['comm_update_all'],
+                                       max_start_date, 'comm')
+    training_data = add_data_to_master(inflation_rates, training_data, update_dates, params['data']['inf_update_all'],
+                                       max_start_date, 'inflation')
     training_data = add_data_to_master(eq_volume, training_data, update_dates, params['data']['equity_update_all'],
                                        max_start_date, 'eq_name_volume')
     training_data.index = [d.strftime('%d/%m/%Y') for d in training_data.index]
