@@ -18,6 +18,7 @@ def extract_model_configs():
               'target_names': config['PATHS']['TARGET_NAMES'],
               'train_path': config['PATHS']['TRAIN_TS'],
               'target_path': config['PATHS']['TARGET_TS'],
+              'calendar_path': config['PATHS']['CALENDAR_DATES'],
               'ir_path': config['PATHS']['IR_DATA'],
               'comm_path': config['PATHS']['COMM_DATA'],
               'inf_path': config['PATHS']['INF_DATA'],

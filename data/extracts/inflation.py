@@ -53,6 +53,8 @@ def get_all_inflation_data(update_dates, params, start_date):
     update_dates = np.array(update_dates)
     if not params['data']['inf_update_all']:
         update_dates = update_dates[update_dates > start_date]
+    if len(update_dates) == 0:
+        return None
     all_inf_data = pd.DataFrame(index=update_dates)
     inf_names = pd.read_csv(params['inf_path'], index_col='internal_ticker')
     for ir in inf_names.index:

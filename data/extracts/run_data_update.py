@@ -5,12 +5,13 @@ from datetime import datetime
 import logging
 
 from data.extracts.data_utils import extract_target_names, get_last_training_date, get_platinum_dates
+from data.extracts.calendars import get_earnings_calendar_data
 from data.extracts.comm import get_all_comm_data
 from data.extracts.equity import get_equity_data
 from data.extracts.fx import get_all_fx_data
 from data.extracts.ir import get_all_ir_data
 from data.extracts.inflation import get_all_inflation_data
-from data.extracts.write_data import write_training_data, write_target_data
+from data.extracts.write_data import write_training_data, write_target_data, write_calendar_data
 
 import CONFIG
 
@@ -37,7 +38,9 @@ def update_model_data(d, params):
     ir_rates = get_all_ir_data(update_dates, params, last_train_date)
     comm_prices = get_all_comm_data(update_dates, params, last_train_date)
     inflation_rates = get_all_inflation_data(update_dates, params, last_train_date)
+    calendar_dates = get_earnings_calendar_data(start_date, end_date)
 
-    write_target_data(eq_price.copy(), params['target_path'])
-    write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates, comm_prices, inflation_rates, params,
-                        update_dates, last_train_date)
+    write_target_data(eq_price, params['target_path'])
+    write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates, comm_prices, inflation_rates,
+                        params, update_dates, last_train_date)
+    write_calendar_data(calendar_dates, params)

@@ -53,6 +53,8 @@ def get_all_comm_data(update_dates, params, start_date):
     update_dates = np.array(update_dates)
     if not params['data']['comm_update_all']:
         update_dates = update_dates[update_dates > start_date]
+    if len(update_dates) == 0:
+        return None
     all_comm_data = pd.DataFrame(index=update_dates)
     comm_names = pd.read_csv(params['comm_path'], index_col='internal_ticker')
     for c in comm_names.index:

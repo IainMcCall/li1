@@ -49,7 +49,11 @@ def get_equity_data(eq_df, ts_file, start_date, end_date, params, update_dates):
     else:
         name_price = pd.read_csv(ts_file, index_col=0)
         name_price.index = [datetime.strptime(str(d), '%d/%m/%Y').date() for d in name_price.index]
-        end_date = name_price.index.values[-1]
+        start_date = name_price.index.values[-1]
+    update_dates = np.array(update_dates)
+    update_dates = update_dates[update_dates > start_date]
+    if len(update_dates) == 0:
+        return None, None, None, None
     name_volume = pd.DataFrame(index=update_dates)
     index_price = pd.DataFrame(index=update_dates)
     index_volume = pd.DataFrame(index=update_dates)

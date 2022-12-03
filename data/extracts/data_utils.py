@@ -56,9 +56,12 @@ def get_platinum_dates(start_date, end_date, regions=None):
 
 def extract_target_names(data_file):
     with open(data_file, 'r') as f:
-        data = [str(r).split(',')[:-1] for r in f.readlines()[1:]]
+        data = [str(r).split(',') for r in f.readlines()[1:]]
     data = pd.DataFrame(data, columns=['ticker', 'name', 'index'])
-    data['yfinance_ticker'] = data['ticker'] + '.L'
+    yf_tickers = []
+    for t, i in zip(data['ticker'].values, data['ticker'].values):
+        yf_tickers.append(t + ('.L' if i == 'FTSE' else ''))
+    data['yfinance_ticker'] = yf_tickers
     data = data.set_index('ticker')
     return data
 

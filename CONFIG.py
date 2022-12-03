@@ -25,4 +25,7 @@ EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',
                           'DJEURO50': 'STOXX50E',
                           'NIKKEI225': 'N225'}
 TRAIN_CCYS = ['GBP', 'EUR', 'JPY', 'AUD']
+
+### API KEYS
 QUANDL_API_KEY = "Zh-i4zVaLQsXGPZzeFDe"
+FINNHUB_API_KEY = "cdsc9hiad3i727soq8v0cdsc9hiad3i727soq8vg"

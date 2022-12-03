@@ -21,6 +21,9 @@ def write_target_data(target_data, outpath):
     Outputs:
         outpath.csv file.
     """
+    if not isinstance(target_data, pd.DataFrame):
+        logger.info(f'No new target data to write...')
+        return None
     logger.info('Writing output target data...')
     target_data.index = [d.strftime('%d/%m/%Y') for d in target_data.index]
     target_data.index.name = 'date'
@@ -41,6 +44,9 @@ def add_data_to_master(in_data, master_data, update_dates, update_all_dates, max
     Returns:
         (pandas.core.Frame.DataFrame): Master data updated with the input data.
     """
+    if not isinstance(in_data, pd.DataFrame):
+        logger.info(f'No new data for write for {rf_cat}...')
+        return master_data
     logger.info(f'Writing {rf_cat} data...')
     rf_update_dates = np.array(update_dates)
     if not update_all_dates:
@@ -97,3 +103,14 @@ def write_training_data(eq_volume, index_price, index_volume, fx_rates, ir_rates
     training_data.index = [d.strftime('%d/%m/%Y') for d in training_data.index]
     training_data.index.name = 'date'
     training_data.to_csv(params['train_path'])
+
+
+def write_calendar_data(calendar_dates, params):
+    """
+    Write calendar dates to csv file.
+
+    Args:
+        calendar_dates (pandas.core.Frame.DataFrame):
+        params (dict): Model parameters.
+    """
+    calendar_dates.to_csv(params['calendar_path'])
