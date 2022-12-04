@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import Lasso, LinearRegression
 
 import CONFIG
-from data.transformations.data_prep import standardise_array, de_standardise_array
+from data.transformations.stats import standardise_array, de_standardise_array
 from analytics.testing import create_k_folds, loss_function, out_of_sample_r2
 
 logger = logging.getLogger('main')

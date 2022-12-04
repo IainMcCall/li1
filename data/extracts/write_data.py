@@ -35,10 +35,10 @@ def add_data_to_master(in_data, master_data, update_dates, update_all_dates, max
     Adds new data to a master dataset.
 
     Args:
-          in_data (pandas.core.Frame.DataFrame):
-          master_data (pandas.core.Frame.DataFrame):
-          update_dates (list,date):
-          update_all_dates (bool):
+          in_data (pandas.core.Frame.DataFrame): Input data.
+          master_data (pandas.core.Frame.DataFrame): Original market data to be updated.
+          update_dates (list,date): Dates to update.
+          update_all_dates (bool): Update all dates.
           max_start_date (date): Last start date to use.
           rf_cat (str): Category label.
     Returns:

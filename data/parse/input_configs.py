@@ -40,6 +40,8 @@ def extract_model_configs():
                        'equity_source': config['DATA_PARAMETERS']['EQUITY_SOURCE'],
                        'equity_price': config['DATA_PARAMETERS']['EQUITY_PRICE'],
                        'equity_volume': config['DATA_PARAMETERS']['EQUITY_VOLUME'],
+                       'max_gap': config.getfloat('DATA_QUALITY', 'MAX_GAP'),
+                       'min_pct': config.getfloat('DATA_QUALITY', 'MIN_PCT_DATA')
                        },
               'test': {'k_folds': config.getint('TESTING_PARAMETERS', 'K_FOLDS'),
                        'shuffle_folds': config.getboolean('TESTING_PARAMETERS', 'SHUFFLE_FOLDS'),

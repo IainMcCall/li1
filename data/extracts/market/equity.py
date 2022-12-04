@@ -44,8 +44,20 @@ def get_equity_data(eq_df, ts_file, start_date, end_date, params, update_dates):
         params (dict): Model parameters.
         update_dates (list,date): List of dates to extract data from.
     """
+    if params['equity_source'] == 'yahoo_finance':
+        eq_tickers = eq_df['yfinance_ticker'].values
+    else:
+        # Include other data sources here once they become available.
+        eq_tickers = eq_df['yfinance_ticker'].values
+    all_tickers = eq_tickers.copy()
+    index_tickers = ['^' + CONFIG.EQUITY_INDEXES_TICKERS[eq] for eq in CONFIG.EQUITY_INDEXES_TICKERS]
+    for eq in index_tickers:
+        all_tickers = np.append(all_tickers, eq)
+    eq_price = params['equity_price']
+    eq_vol = params['equity_volume']
+
     if not os.path.isfile(ts_file) or params['equity_update_all']:
-        name_price = pd.DataFrame(index=update_dates)
+        name_price = pd.DataFrame(index=update_dates, columns=eq_tickers + '_' + eq_price)
     else:
         name_price = pd.read_csv(ts_file, index_col=0)
         name_price.index = [datetime.strptime(str(d), '%d/%m/%Y').date() for d in name_price.index]
@@ -54,25 +66,14 @@ def get_equity_data(eq_df, ts_file, start_date, end_date, params, update_dates):
     update_dates = update_dates[update_dates > start_date]
     if len(update_dates) == 0:
         return None, None, None, None
-    name_volume = pd.DataFrame(index=update_dates)
-    index_price = pd.DataFrame(index=update_dates)
-    index_volume = pd.DataFrame(index=update_dates)
-
-    if params['equity_source'] == 'yahoo_finance':
-        eq_tickers = eq_df['yfinance_ticker'].values
-    else:
-        # Include other data sources here once they become available.
-        eq_tickers = eq_df['yfinance_ticker'].values
-    index_tickers = []
-    all_tickers = eq_tickers.copy()
-    for eq in CONFIG.EQUITY_INDEXES_TICKERS:
-        index_tickers = np.append(index_tickers, '^' + CONFIG.EQUITY_INDEXES_TICKERS[eq])
-        all_tickers = np.append(all_tickers, '^' + CONFIG.EQUITY_INDEXES_TICKERS[eq])
     new_data = equity_data_extract(all_tickers, start_date, end_date, data_source=params['equity_source'])
-    eq_price = params['equity_price']
-    eq_vol = params['equity_volume']
+
+    name_volume = pd.DataFrame(index=update_dates, columns=eq_tickers)
+    index_price = pd.DataFrame(index=update_dates, columns=[i + '_' + eq_price for i in index_tickers])
+    index_volume = pd.DataFrame(index=update_dates, columns=index_tickers)
+
     for eq in all_tickers:
-        is_index = np.any(index_tickers == eq)
+        is_index = eq in index_tickers
         if eq in new_data['Close']:
             logger.info("Updating data for " + eq)
             for d in update_dates:

@@ -6,6 +6,43 @@ Calculate simple statistics for input data series.
 import numpy as np
 
 
+def standardise_array(x, center=True, means=None, stdevs=None):
+    """
+    Standardise input data.
+
+    Args:
+        x (ndarray): Raw input.
+        center (bool): Optional. Set mean to 0.
+        means (ndarray): Optional. Means if these have already been calculated.
+        stdevs (ndarray): Optional. Standard deviations if these have already been calculated.
+    Returns:
+        (ndarray): Standardised Matrix.
+        (ndarray): Standardisation means.
+        (ndarray): Standardisation standard deviations.
+    """
+    if means is None:
+        means = np.mean(x, axis=0) if center else np.zeros(x.shape[1])
+    if stdevs is None:
+        stdevs = np.std(x, ddof=1, axis=0)
+    return (x - means) / stdevs, means, stdevs
+
+
+def de_standardise_array(x, means, stdevs):
+    """
+    Destandardise a standardized array.
+
+    Args:
+        x (ndarray): Standar
+        means (ndarray): Set mean to 0.
+        stdevs (ndarray): Set mean to 0.
+    Returns:
+        (ndarray): Standardised Matrix.
+        (ndarray): Standardisation means.
+        (ndarray): Standardisation standard deviations.
+    """
+    return (x * stdevs) + means
+
+
 def stdev(x, df=1, w=None):
     """
     Calculate standard deviations with n degrees of freedom.
@@ -82,21 +119,34 @@ def overlapping_vols(returns, p, df):
 
 def overlapping_correlation(x1, x2, p):
     """
-    For a matrix of inputs calculate historical overlapping correlations between 2 series.
+    For 2 input vectors calculate historical overlapping correlations.
 
     Args:
-        x1 (ndarray): Matrix of input returns 1.
-        x2 (ndarray): Matrix of input returns 2.
+        x1 (ndarray): Returns 1.
+        x2 (ndarray): Returns 2.
         p (int): Period to use for overlapping correlations.
     Returns:
         (ndarray): Historical rolling correlations.
     """
     n = len(x1)
-    correls = x1[p:].copy()
-    for v in correls:
-        rv = x1[v].values
-        vv = np.empty(n-p)
-        for i in range(n - p):
-            vv[i] = correlation(rv[i+1:i+p+1], x2[i+1:i+p+1])
-        correls[v] = vv
-    return correls
+    vv = np.empty(n-p)
+    for i in range(n - p):
+        vv[i] = correlation(x1[i+1:i+p+1], x2[i+1:i+p+1])
+    return vv
+
+
+def rolling_avg_series(ts, n_days=5):
+    """
+    Converts index data into an nday rolling average.
+
+    Args:
+        ts (pandas.core.Series.series): Input series.
+        n_days (int): Period to take average over.
+    Returns:
+        (pandas.core.Series.series): Data with an nday average.
+    """
+    avg_data = ts.copy()
+    for i in range(1, len(ts) - 1):
+        avg_data[i] = np.nanmean(avg_data[max(0, i - n_days): i+1])
+    avg_data[-1] = np.nanmean(avg_data[-n_days:])
+    return avg_data

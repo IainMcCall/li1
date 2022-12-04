@@ -21,18 +21,23 @@ def ff_return(x, h, ff):
         return x[h:] / x[:-h] - 1
     elif ff == 'absolute':
         return x[h:] - x[:-h]
+    elif ff == 'fisher':
+        return np.arctanh(x[h:]) - np.arctanh(x[:-h])
 
 
-def convert_levels_to_returns(ts, ff, h):
+def convert_levels_to_returns(ts, rf_attributes, h, ff='log'):
     """
     Convert a time-series into a sets of historical returns over a h-day horizon.
 
     Args:
         ts (pandas.core.Frame.DataFrame): Matrix of input series.
-        ff (dict): Functional form to use for each series.
+        rf_attributes (pandas.core.Frame.DataFrame): Attributes for input series.
         h (int): Horizon for returns.
+        ff (str): Optional. Functional form for the input parameter.
+    Returns:
+        (pandas.core.Frame.DataFrame): Matrix of input series.
     """
     ts_r = ts[h:].copy()
     for p in ts_r:
-        ts_r[p] = ff_return(ts[p].values, h, ff[p])
+        ts_r[p] = ff_return(ts[p].values, h, (ff if ff else rf_attributes.at[p, 'ff']))
     return ts_r

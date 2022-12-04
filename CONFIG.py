@@ -11,14 +11,20 @@ TRAIN_TYPE = {'_close': 'eq_index_close',
               '_volume': 'eq_index_volume',
               '_fx': 'fx_rate',
               '_bond': 'ir_rate',
-              '_com': 'commodity_price'
+              '_com': 'commodity_price',
               }
-TRAIN_ATTRIBUTES = {'eq_index_close': ['log'],
-                    'eq_index_volume': ['log'],
-                    'fx_rate': ['log'],
-                    'ir_rate': ['absolute'],
-                    'commodity_price': ['log']
-                    }
+TRAIN_FUNCTIONAL_FORM = {'eq_index_price': 'log',
+                         'eq_name_price': 'log',
+                         'eq_index_volume': 'log',
+                         'eq_name_volume': 'log',
+                         'fx_spot': 'log',
+                         'comm': 'log',
+                         'ir_yield': 'absolute',
+                         'inflation': 'absolute',
+                         'vol_train': 'log',
+                         'vol_target': 'log',
+                         'correlation_target': 'fisher'
+                         }
 LOSS_METHODS = ['mae', 'mse', 'huber', 'phuber']
 EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',
                           'FTSE100': 'FTSE',
