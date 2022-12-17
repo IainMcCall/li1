@@ -17,20 +17,36 @@ from data.quality.ts_quality_checks import filter_ts_by_data_quality
 import CONFIG
 
 
-def select_training_subset():
+def select_training_subset(selection_set, eq, eq_index, eq_price, is_index):
     """
     From a list of input series, s
 
+    Args:
+        selection_set (list): All potential guiders that can be chosen.
+        eq (str): Equity ticker.
+        eq_index (str): Equity index.
+        eq_price (str): Equity price source.
+        is_index (bool): Equity is an index.
+    Returns:
+        (list): Subset of training data to use.
     """
+    if is_index:
+        subset = [f'eq_index_volume|{eq}']
+    else:
+        subset = [f'eq_index_volume|{eq_index}', f'eq_index_price|{eq_index}_{eq_price}', f'eq_name_volume|{eq}']
+    for i in selection_set:
+        if f"ir_yield|{i}" in CONFIG.IR_YIELD_SUBSET or i[:7] == 'fx_spot' or i[:4] == 'comm':
+            subset.append(i)
+    return subset
 
 
-def provide_model_data(returns, target_attributes, train_attributes, params):
+def select_model_data(returns, target_attributes, train_attributes, params):
     """
-    Converts data from raw inputs into format to use in the models (x, y).
+    Selects data from raw inputs into format to use in the models (x, y).
 
     Args:
-        returns (dict): DataFrame of returns to use.
-        target_attributes (pandas.core.Frame.DataFrame): Target data attributes.
+        returns (dict): DataFrame of returns to use (Target and training).
+        target_attributes (pandas.core.Frame.DataFrame): Target data attributes (Equity ticker attributes).
         train_attributes (pandas.core.Frame.DataFrame): Training data attributes.
         params (dict): Model parameters.
     Returns:
@@ -42,22 +58,25 @@ def provide_model_data(returns, target_attributes, train_attributes, params):
     ret_lags = params['return_lags']
     mvol_lags = params['vol_lags']
     corr_lags = params['corr_lags']
-    eq_price = params['data']['equty_price']
+    eq_price = params['data']['equity_price']
     y = {}
     x = {}
     x_new = {}
     labels = {}
     for r in returns['target_f']:
-        eq_index = '^' + target_attributes.at[r, 'eq_index'] + '_' + eq_price
+        eq = r.replace(f"_{eq_price}", "")
+        is_index = (target_attributes.at[r, 'type'] == 'eq_index_price')
+        eq_index = (None if is_index else '^' + target_attributes.at[r, 'eq_index'])
         y[r] = returns['target_f'][r].values[-p:]
-        x_r = returns['train_f'][-p-1:].copy()
+        x_r = returns['train_f'][-p-1:].copy() # Keep last value for training value.
+        x_r = x_r[select_training_subset(x_r.columns.values, eq, eq_index, eq_price, is_index)]
         for i in ret_lags:
             x_r['ret_lag' + str(i)] = returns['target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         for i in mvol_lags:
-            x_r['mvol_lag'] = returns['vol_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
-            x_r['mvol_lag_index'] = returns['vol_train_f'][eq_index].values[-p-i:-i+1 if -i+1 != 0 else None]
-        for i in corr_lags:
-            x_r['index_correlation_lag'] = returns['correlation_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
+            x_r['mvol_lag' + str(i)] = returns['vol_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
+        if not is_index:
+            for i in corr_lags:
+                x_r['index_correlation_lag' + str(i)] = returns['correlation_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         labels[r] = x_r.columns
         x[r] = np.array(x_r[:-1])
         x_new[r] = np.array(x_r.iloc[-1])
@@ -116,4 +135,4 @@ def run_data_transform(params):
         stats[s + '_f'] = filter_day(stats[s], params['weekday'])
         returns[s + '_f'] = convert_levels_to_returns(stats[s + '_f'], train_attributes, h=1,
                                                       ff=CONFIG.TRAIN_FUNCTIONAL_FORM[s])
-    return provide_model_data(returns, target_attributes, train_attributes, params)
+    return select_model_data(returns, target_attributes, train_attributes, params)
