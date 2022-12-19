@@ -31,8 +31,8 @@ EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',
                           'DJEURO50': 'STOXX50E',
                           'NIKKEI225': 'N225'}
 TRAIN_CCYS = ['GBP', 'EUR', 'JPY', 'AUD']
-IR_YIELD_SUBSET = ['us_zc_yield_2yr', 'us_zc_yield_10yr', 'uk_zc_yield_5y', 'uk_zc_yield_10y', 'eu_zc_yield_2y',
-                   'eu_zc_yield_10y']
+IR_YIELD_SUBSET = ['ir_yield|us_zc_yield_2yr', 'ir_yield|us_zc_yield_10yr', 'ir_yield|uk_zc_yield_5y',
+                   'ir_yield|uk_zc_yield_10y', 'ir_yield|eu_zc_yield_2y', 'ir_yield|eu_zc_yield_10y']
 
 ### API KEYS
 QUANDL_API_KEY = "Zh-i4zVaLQsXGPZzeFDe"

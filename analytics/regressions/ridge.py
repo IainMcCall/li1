@@ -133,16 +133,10 @@ class LiForwardRidge:
             self.reg = Ridge(fit_intercept=self.model_params['intercept'], alpha=self.rlambda)
         self.reg.fit(self.x_subset, self.y)
 
-        reg_results = [self.ymeans, self.ystdevs, self.reg.score(self.x_subset, self.y), self.rlambda]
-        p = self.model_params['max_regressors']
-        k = len(self.regressors)
+        reg_results = [self.ymeans, self.ystdevs, self.reg.score(self.x_subset, self.y), self.rlambda, len(self.regressors)]
         reg_results.extend([self.labels[i] for i in self.regressors])
-        for i in range(p-k):
-            reg_results.append('')
         reg_results.append(self.reg.intercept_)
         reg_results.extend([i for i in list(self.reg.coef_)])
-        for i in range(p-k):
-            reg_results.append('')
         return reg_results
 
     def ktest_ridge(self, train_folds):

@@ -2,8 +2,9 @@
 Provides functions for final data preparation (x, y) to use in the models.
 
 1. Add options to parse model data to remove weeks with a dividend date or earnings announcement from the sample.
-2. Filter input dates to only include business dates - Also for upstream in extraction.
 """
+import os
+
 import numpy as np
 import pandas as pd
 
@@ -35,19 +36,18 @@ def select_training_subset(selection_set, eq, eq_index, eq_price, is_index):
     else:
         subset = [f'eq_index_volume|{eq_index}', f'eq_index_price|{eq_index}_{eq_price}', f'eq_name_volume|{eq}']
     for i in selection_set:
-        if f"ir_yield|{i}" in CONFIG.IR_YIELD_SUBSET or i[:7] == 'fx_spot' or i[:4] == 'comm':
+        if i in CONFIG.IR_YIELD_SUBSET or i[:7] == 'fx_spot' or i[:4] == 'comm':
             subset.append(i)
     return subset
 
 
-def select_model_data(returns, target_attributes, train_attributes, params):
+def select_model_data(returns, target_attributes, params):
     """
     Selects data from raw inputs into format to use in the models (x, y).
 
     Args:
         returns (dict): DataFrame of returns to use (Target and training).
         target_attributes (pandas.core.Frame.DataFrame): Target data attributes (Equity ticker attributes).
-        train_attributes (pandas.core.Frame.DataFrame): Training data attributes.
         params (dict): Model parameters.
     Returns:
         (dict): X values to use in model.
@@ -63,7 +63,7 @@ def select_model_data(returns, target_attributes, train_attributes, params):
     x = {}
     x_new = {}
     labels = {}
-    for r in returns['target_f']:
+    for r in returns['target_f'].columns[-6:]:
         eq = r.replace(f"_{eq_price}", "")
         is_index = (target_attributes.at[r, 'type'] == 'eq_index_price')
         eq_index = (None if is_index else '^' + target_attributes.at[r, 'eq_index'])
@@ -115,6 +115,9 @@ def run_data_transform(params):
     """
     train_ts, train_quality = extract_model_data(params['train_path'], params)
     target_ts, target_quality = extract_model_data(params['target_path'], params)
+    train_quality.to_csv(os.path.join(params['outpath'], 'train_data_quality.csv'))
+    target_quality.to_csv(os.path.join(params['outpath'], 'target_data_quality.csv'))
+
     eq_attributes = extract_target_names(params['target_names'])
     train_ts, target_ts, train_quality, target_quality = filter_ts_by_data_quality(train_ts, target_ts, train_quality,
                                                                                    target_quality)
@@ -135,4 +138,4 @@ def run_data_transform(params):
         stats[s + '_f'] = filter_day(stats[s], params['weekday'])
         returns[s + '_f'] = convert_levels_to_returns(stats[s + '_f'], train_attributes, h=1,
                                                       ff=CONFIG.TRAIN_FUNCTIONAL_FORM[s])
-    return select_model_data(returns, target_attributes, train_attributes, params)
+    return select_model_data(returns, target_attributes, params)

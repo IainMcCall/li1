@@ -16,6 +16,12 @@ from reporting.output_csv import output_model_csv_reports
 logger = logging.getLogger('main')
 
 
+def run_regression_model():
+    """
+
+    """
+
+
 def run_all_models(x, y, x_new, labels, params):
     """
     Trains and outputs results from all models.
@@ -34,11 +40,11 @@ def run_all_models(x, y, x_new, labels, params):
     all_predictions = pd.DataFrame()
     all_times = pd.DataFrame()
     all_model_results = {'m1_ols': [],
-                         'm2_ridge': [],
+                         'm2_fridge': [],
                          'm3_lasso': [],
                          'm4_el': []
                          }
-    all_model_calibs = {'m2_ridge': pd.DataFrame(),
+    all_model_calibs = {'m2_fridge': pd.DataFrame(),
                         'm3_lasso': pd.DataFrame(),
                         'm4_el': pd.DataFrame()
                         }
@@ -70,10 +76,10 @@ def run_all_models(x, y, x_new, labels, params):
         m = LiForwardRidge(x_p.copy(), y_p.copy(), params, labels_p)
         test_lambda, lambda_errors = m.calibrate_lambda()
         calib_end = time.time()
-        all_model_calibs['m2_ridge'] = pd.concat([all_model_calibs['m2_ridge'],
+        all_model_calibs['m2_fridge'] = pd.concat([all_model_calibs['m2_fridge'],
                                                   pd.DataFrame(index=test_lambda, data={p: lambda_errors})], axis=1)
         train_start = time.time()
-        all_model_results['m2_ridge'].append(m.run_ridge())
+        all_model_results['m2_fridge'].append(m.run_ridge())
         train_end = time.time()
         test_results = m.ktest_ridge(k_folds.copy())
         test_end = time.time()
@@ -124,7 +130,9 @@ def run_all_models(x, y, x_new, labels, params):
 
         logger.info('Running model 5: Neural Net; For ' + p)
 
-        logger.info('Running model 6: Support Vector Machine; For ' + p)
+        logger.info('Running model 6: Random Forest; For ' + p)
+
+        logger.info('Running model 7: Support Vector Machine; For ' + p)
 
     output_model_csv_reports(all_predictions, all_test_results, all_model_results, all_model_calibs, all_times, targets,
                              labels, params, outpath)
