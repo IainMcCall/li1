@@ -63,7 +63,7 @@ def select_model_data(returns, target_attributes, params):
     x = {}
     x_new = {}
     labels = {}
-    for r in returns['target_f'].columns[-6:]:
+    for r in returns['target_f']:
         eq = r.replace(f"_{eq_price}", "")
         is_index = (target_attributes.at[r, 'type'] == 'eq_index_price')
         eq_index = (None if is_index else '^' + target_attributes.at[r, 'eq_index'])
