@@ -9,3 +9,10 @@ class Model(Enum):
     M2_FRIDGE = 'm2_fridge'
     M3_LASSO = 'm3_lasso'
     M4_EL = 'm4_el'
+
+
+class LossCalc(Enum):
+    MSE = 'mse'
+    MAE = 'mae'
+    HUBER = 'huber'
+    PHUBER = 'phuber'

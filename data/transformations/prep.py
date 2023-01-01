@@ -10,7 +10,7 @@ import pandas as pd
 
 from data.parse.input_ts import extract_model_data, filter_day
 from data.transformations.returns import convert_levels_to_returns
-from data.transformations.stats import overlapping_vols, overlapping_correlation
+from analytics.stats.utils import overlapping_vols, overlapping_correlation
 from data.transformations.attributes import get_data_attributes
 from data.extracts.data_utils import extract_target_names
 from data.quality.ts_quality_checks import filter_ts_by_data_quality

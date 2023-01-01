@@ -1,6 +1,8 @@
 """
 Provides Python object functions.
 """
+from enums import LossCalc
+
 CODE_BATCHES = ['update_data', 'run_models']
 WEEKDAY_MAPPING = {'monday': 0,
                    'tuesday': 1,
@@ -25,7 +27,7 @@ TRAIN_FUNCTIONAL_FORM = {'eq_index_price': 'log',
                          'vol_target': 'log',
                          'correlation_target': 'fisher'
                          }
-LOSS_METHODS = ['mae', 'mse', 'huber', 'phuber']
+LOSS_METHODS = [LossCalc.MAE, LossCalc.MSE, LossCalc.HUBER, LossCalc.PHUBER]
 EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',
                           'FTSE100': 'FTSE',
                           'DJEURO50': 'STOXX50E',

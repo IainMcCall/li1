@@ -8,9 +8,9 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
+from analytics.stats.utils import rolling_avg_series
 import CONFIG
 from data.quality.ts_quality_checks import get_matrix_data_quality
-from data.transformations.stats import rolling_avg_series
 
 
 def filter_day(x, day_of_week):

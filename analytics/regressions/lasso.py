@@ -6,14 +6,16 @@ import logging
 import numpy as np
 from sklearn.linear_model import Lasso, LinearRegression
 
-import CONFIG
-from data.transformations.stats import standardise_array, de_standardise_array
+from analytics.stats.utils import standardise_array, de_standardise_array
 from analytics.testing import create_k_folds, loss_function, out_of_sample_r2
+from analytics.regressions.base import BaseRegression
+import CONFIG
+from enums import Model
 
 logger = logging.getLogger('main')
 
 
-class LiLasso:
+class LiLasso(BaseRegression):
     """
     Provides Lasso regression functions.
 
@@ -24,21 +26,10 @@ class LiLasso:
         labels (list): Names for target data.
     """
     def __init__(self, x, y, params, labels):
-        self.x = x.copy()
-        self.y = y.copy()
-        self.test_params = params['test']
-        self.model_params = params['m3_lasso']
+        super(LiLasso, self).__init__(x, y, params, Model.M3_LASSO)
         self.labels = labels
         self.reg = None
-        self.xmeans = None
-        self.ymeans = None
-        self.xstdevs = None
-        self.ystdevs = None
         self.rlambda = 0.0
-        if self.model_params['train_standardize']:
-            self.x, self.xmeans, self.xstdevs = standardise_array(self.x.copy(), center=self.model_params['train_center'])
-        if self.model_params['target_standardize']:
-            self.y, self.ymeans, self.ystdevs = standardise_array(self.y.copy(), center=self.model_params['target_center'])
 
     def calibrate_lambda(self):
         """
@@ -131,7 +122,7 @@ class LiLasso:
         model_losses = {'r2_os': out_of_sample_r2(ky_all, ky_hat_all)}
         huber_delta = self.test_params['huber_delta'] * np.std(ky_all, ddof=1)
         for i in CONFIG.LOSS_METHODS:
-            model_losses[i + '_loss'] = loss_function(k_errors, i, huber_delta)
+            model_losses[i.value + '_loss'] = loss_function(k_errors, i, huber_delta)
         return model_losses
 
     def predict_lasso(self, x_new):

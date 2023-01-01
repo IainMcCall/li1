@@ -6,15 +6,10 @@ import os
 
 import pandas as pd
 
+from enums import Model
+from reporting.utils import try_create_dir
+
 logger = logging.getLogger('main')
-
-
-def try_create_dir(root_dir, f):
-    if os.path.isdir(os.path.join(root_dir, f)):
-        return os.path.join(root_dir, f)
-    else:
-        os.makedirs(os.path.join(root_dir, f))
-        return os.path.join(root_dir, f)
 
 
 def output_regression_model_results(max_regressors, targets, labels, model_results, outdir, model_type,
@@ -28,16 +23,17 @@ def output_regression_model_results(max_regressors, targets, labels, model_resul
         labels (list): Regressors used for each target.
         model_results (list, list): Model results for the regression.
         outdir (str): Location to write data to.
-        model_type (str): Type of model to run.
+        model_type (Model): Type of model to run.
         calibration_results (pandas.core.Frame.DataFrame): Optional. Calibration results.
     """
-    logger.info(f'Output {model_type} results to csv...')
+    model_string = model_type.value
+    logger.info(f'Output {model_string} results to csv...')
     cols = ['mean', 'stdev', 'score']
-    if model_type in ['m2_fridge', 'm3_lasso', 'm4_el']:
+    if model_type in [Model.M2_FRIDGE, Model.M3_LASSO, Model.M4_EL]:
         cols.append('lambda')
-        if model_type == 'm2_fridge':
+        if model_type == Model.M2_FRIDGE:
             cols.append('nr_regressors')
-        elif model_type == 'm4_el':
+        elif model_type == Model.M4_EL:
             cols.append('l1_ratio')
     cols.extend(['regressor_' + str(i) for i in max_regressors] + ['intercept'] + ['beta_' + str(i) for i in max_regressors])
 
@@ -49,20 +45,20 @@ def output_regression_model_results(max_regressors, targets, labels, model_resul
         df.at[t, 'mean'] = results_t[0]
         df.at[t, 'stdev'] = results_t[1]
         df.at[t, 'score'] = results_t[2]
-        if model_type == 'm2_fridge':
+        if model_type == Model.M2_FRIDGE:
             p = results_t[4]
             df.at[t, 'nr_regressors'] = p
         df.at[t, 'intercept'] = results_t[-p-1]
-        if model_type in ['m2_fridge', 'm3_lasso', 'm4_el']:
+        if model_type in [Model.M2_FRIDGE, Model.M3_LASSO, Model.M4_EL]:
             df.at[t, 'lambda'] = results_t[3]
-            if model_type == 'm4_el':
+            if model_type == Model.M4_EL:
                 df.at[t, 'l1_ratio'] = results_t[4]
         for j in range(p):
-            df.at[t, f"regressor_{j+1}"] = results_t[5+j] if model_type == 'm2_fridge' else regressors_t[j]
+            df.at[t, f"regressor_{j+1}"] = results_t[5+j] if model_type == Model.M2_FRIDGE else regressors_t[j]
             df.at[t, f"beta_{j+1}"] = results_t[-p+j]
-    pd.DataFrame(df).to_csv(os.path.join(outdir, f'{model_type}_results.csv'))
+    pd.DataFrame(df).to_csv(os.path.join(outdir, f'{model_string}_results.csv'))
     if isinstance(calibration_results, pd.DataFrame):
-        calibration_results.to_csv(os.path.join(outdir, f'{model_type}_calibrations.csv'))
+        calibration_results.to_csv(os.path.join(outdir, f'{model_string}_calibrations.csv'))
 
 
 def output_model_csv_reports(all_predictions, all_test_results, all_model_results, all_model_calibs, all_times, targets,
@@ -81,21 +77,21 @@ def output_model_csv_reports(all_predictions, all_test_results, all_model_result
         params (dict): Model parameters.
         outpath (str): Directory to write results to.
     """
-    regression_models = {'m1_ols': try_create_dir(outpath, 'm1_ols'),
-                         'm2_fridge': try_create_dir(outpath, 'm2_fridge'),
-                         'm3_lasso': try_create_dir(outpath, 'm3_lasso'),
-                         'm4_el': try_create_dir(outpath, 'm4_el')}
+    regression_models = {Model.M1_OLS: try_create_dir(outpath, Model.M1_OLS.value),
+                         Model.M2_FRIDGE: try_create_dir(outpath, Model.M2_FRIDGE.value),
+                         Model.M3_LASSO: try_create_dir(outpath, Model.M3_LASSO.value),
+                         Model.M4_EL: try_create_dir(outpath, Model.M4_EL.value)}
 
     max_regressors = 0
     for i in labels:
         max_regressors = max(len(labels[i]), max_regressors)
     max_regressors = range(1, max_regressors + 1)
-    ridge_p = range(1, params['m2_fridge']['max_regressors'] + 1)
+    ridge_p = range(1, params[Model.M2_FRIDGE]['max_regressors'] + 1)
 
     logger.info('Output regression model detailed results to csv...')
     for r in regression_models:
-        output_regression_model_results(ridge_p if r == 'm2_fridge' else max_regressors, targets, labels,
-                                        all_model_results[r], regression_models[r], r, None if r == 'm1_ols' else
+        output_regression_model_results(ridge_p if r == Model.M2_FRIDGE else max_regressors, targets, labels,
+                                        all_model_results[r], regression_models[r], r, None if r == Model.M1_OLS else
                                         all_model_calibs[r])
 
     logger.info('Output summary results to csv...')

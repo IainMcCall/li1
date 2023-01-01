@@ -3,6 +3,8 @@ Provides functions for model testing.
 """
 import numpy as np
 
+from enums import LossCalc
+
 
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
@@ -40,18 +42,18 @@ def loss_function(a, loss_calc, huber_delta=0.0):
 
     Args:
         a (ndarray): Errors between predicted and actual data.
-        loss_calc (str): Loss calculation method. 'mse', 'mae', or 'huber', 'phuber'.
+        loss_calc (LossCalc): Loss calculation method. 'mse', 'mae', or 'huber', 'phuber'.
         huber_delta (float): Optional. Huber delta to use.
     Returns:
         (ndarray): Average error.
     """
-    if loss_calc == 'mse':
+    if loss_calc == LossCalc.MSE:
         return np.sqrt(np.average(np.square(a)))
-    elif loss_calc == 'mae':
+    elif loss_calc == LossCalc.MAE:
         return np.average(np.abs(a))
-    elif loss_calc == 'huber':
+    elif loss_calc == LossCalc.HUBER:
         return np.average(np.where(np.abs(a) <= huber_delta, 0.5 * (a ** 2), huber_delta * (np.abs(a) - 0.5 * huber_delta)))
-    elif loss_calc == 'phuber':
+    elif loss_calc == LossCalc.PHUBER:
         return np.average((huber_delta ** 2) * ((np.sqrt(1 + (a / huber_delta) ** 2)) - 1))
 
 
