@@ -5,7 +5,7 @@ import logging
 
 import pandas as pd
 
-from analytics.testing import create_k_folds
+from analytics.testing.testing import create_k_folds
 from analytics.regressions.run_regressions import run_regression_model
 from enums import Model
 from reporting.output_csv import output_model_csv_reports

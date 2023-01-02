@@ -7,9 +7,8 @@ import numpy as np
 from sklearn.linear_model import Lasso, LinearRegression
 
 from analytics.stats.utils import standardise_array, de_standardise_array
-from analytics.testing import create_k_folds, loss_function, out_of_sample_r2
+from analytics.testing.testing import create_k_folds, loss_function
 from analytics.regressions.base import BaseRegression
-import CONFIG
 from enums import Model
 
 logger = logging.getLogger('main')
@@ -26,10 +25,11 @@ class LiLasso(BaseRegression):
         labels (list): Names for target data.
     """
     def __init__(self, x, y, params, labels):
-        super(LiLasso, self).__init__(x, y, params, Model.M3_LASSO)
         self.labels = labels
         self.reg = None
         self.rlambda = 0.0
+        self.run_calib_lambda = True
+        super(LiLasso, self).__init__(x, y, params, Model.M3_LASSO, calib_lambda=True)
 
     def calibrate_lambda(self):
         """
@@ -65,7 +65,7 @@ class LiLasso(BaseRegression):
         self.rlambda = lambda_tests[lambda_errors.index(min(lambda_errors))]
         return lambda_tests, lambda_errors
 
-    def run_lasso(self):
+    def run_model(self):
         """
         Run lasso regression model.
 
@@ -82,50 +82,7 @@ class LiLasso(BaseRegression):
         reg_results.extend(self.reg.coef_)
         return reg_results
 
-    def ktest_lasso(self, train_folds):
-        """
-        Calculate k-fold losses from a lasso regression model.
-
-        Args:
-            train_folds (dict):
-        Returns:
-            (list): Regression results.
-            (dict): Model stats loss.
-        """
-        ky_hat_all = []
-        ky_all = []
-        for k in range(1, self.test_params['k_folds'] + 1):
-            logger.info('Performing m2 k-test for fold: ' + str(k))
-            xk_train, yk_train = train_folds['train_' + str(k)].copy()
-            xk_test, yk_test = train_folds['test_' + str(k)].copy()
-            if self.model_params['train_standardize']:
-                xk_train, a, b = standardise_array(xk_train, means=self.xmeans, stdevs=self.xstdevs)
-                xk_test, a, b = standardise_array(xk_test, means=self.xmeans, stdevs=self.xstdevs)
-            if self.model_params['target_standardize']:
-                yk_train, a, b = standardise_array(yk_train, means=self.ymeans, stdevs=self.ystdevs)
-                yk_test, a, b = standardise_array(yk_test, means=self.ymeans, stdevs=self.ystdevs)
-
-            if self.rlambda == 0:
-                f = LinearRegression(fit_intercept=self.model_params['intercept'])
-            else:
-                f = Lasso(fit_intercept=self.model_params['intercept'], alpha=self.rlambda * np.sqrt(xk_train.shape[0]))
-            f.fit(xk_train, yk_train)
-            yk_pred = f.predict(xk_test)
-            if self.model_params['target_standardize']:
-                yk_pred = de_standardise_array(yk_pred, self.ymeans, self.ystdevs)
-                yk_test = de_standardise_array(yk_test, self.ymeans, self.ystdevs)
-            ky_hat_all.extend(yk_pred)
-            ky_all.extend(yk_test)
-        ky_hat_all = np.array(ky_hat_all)
-        ky_all = np.array(ky_all)
-        k_errors = ky_hat_all - ky_all
-        model_losses = {'r2_os': out_of_sample_r2(ky_all, ky_hat_all)}
-        huber_delta = self.test_params['huber_delta'] * np.std(ky_all, ddof=1)
-        for i in CONFIG.LOSS_METHODS:
-            model_losses[i.value + '_loss'] = loss_function(k_errors, i, huber_delta)
-        return model_losses
-
-    def predict_lasso(self, x_new):
+    def predict_model(self, x_new):
         """
         Predict values from trained forward stepwise ridge regression model.
 

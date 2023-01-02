@@ -22,9 +22,9 @@ class LiOLS(BaseRegression):
         params (dict): Model parameters to use in the old regression.
     """
     def __init__(self, x, y, params):
-        super(LiOLS, self).__init__(x, y, params, Model.M1_OLS)
+        super(LiOLS, self).__init__(x, y, params, Model.M1_OLS, calib_lambda=False)
 
-    def run_ols(self):
+    def run_model(self):
         """
         Run simple OLS regression model.
 
@@ -37,7 +37,7 @@ class LiOLS(BaseRegression):
         reg_results.extend(self.reg.coef_)
         return reg_results
 
-    def predict_ols(self, x_new):
+    def predict_model(self, x_new):
         """
         Predict values from trained OLS regression model.
 
