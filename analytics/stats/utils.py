@@ -5,6 +5,8 @@ Calculate simple statistics for input data series.
 """
 import numpy as np
 
+from enums import CorrType
+
 
 def standardise_array(x, center=True, means=None, stdevs=None):
     """
@@ -57,17 +59,34 @@ def stdev(x, df=1, w=None):
     return np.sqrt(np.sum(np.square(x - np.mean(x))) / (len(x) - df))
 
 
-def correlation(x1, x2, w=None):
+def get_array_ranks(x):
+    """
+    Get the rank order of an array.
+
+    Args:
+        x (ndarray): Input array.
+    Returns:
+        (ndarray): Rank order of the input array.
+    """
+    order = x.argsort()
+    return order.argsort()
+
+
+def correlation(x1, x2, corr_type=CorrType.PEARSON, w=None):
     """
     Calculate standard deviations with n degrees of freedom.
 
     Args:
         x1 (ndarray): Input time series 1.
-        x2 (ndarray): Input time series 1.
+        x2 (ndarray): Input time series 2.
+        corr_type (CorrType): Optional. Type of correlation to calculate (Pearson or spearman rank).
         w (ndarray): Optional. Weight to use per point.
     Returns:
         (ndarray): Standard Correlation for a period.
     """
+    if corr_type == CorrType.SPEARMAN:
+        x1 = get_array_ranks(x1)
+        x2 = get_array_ranks(x2)
     if w is None:
         covar = np.sum((x1 - np.mean(x1)) * (x2 - np.mean(x2)))
         var1 = np.sum(np.square(x1 - np.mean(x1)))
@@ -78,6 +97,27 @@ def correlation(x1, x2, w=None):
         var1 = np.sum((np.square(x1 - np.mean(x1)) * w))
         var2 = np.sum((np.square(x2 - np.mean(x2)) * w))
     return covar / (np.sqrt(var1) * np.sqrt(var2))
+
+
+def beta(x1, x2, w=None):
+    """
+    Calculate beta between 2 series.
+
+    Args:
+        x1 (ndarray): Input time series 1 - Stock returns.
+        x2 (ndarray): Input time series 2 - Index returns.
+        w (ndarray): Optional. Weight to use per point.
+    Returns:
+        (ndarray): Standard Correlation for a period.
+    """
+    if w is None:
+        covar = np.sum((x1 - np.mean(x1)) * (x2 - np.mean(x2)))
+        var = np.sum(np.square(x2 - np.mean(x2)))
+    else:
+        w = w * len(w) / np.sum(w)
+        covar = np.sum(((x1 - np.mean(x1)) * (x2 - np.mean(x2))) * w)
+        var = np.sum((np.square(x2 - np.mean(x2)) * w))
+    return covar / var
 
 
 def generate_weights(n, cutoff, decline_method, final_weight=0.0):
@@ -117,7 +157,7 @@ def overlapping_vols(returns, p, df):
     return vols
 
 
-def overlapping_correlation(x1, x2, p):
+def overlapping_correlation(x1, x2, p, corr_type=CorrType.PEARSON):
     """
     For 2 input vectors calculate historical overlapping correlations.
 
@@ -125,13 +165,17 @@ def overlapping_correlation(x1, x2, p):
         x1 (ndarray): Returns 1.
         x2 (ndarray): Returns 2.
         p (int): Period to use for overlapping correlations.
+        corr_type (CorrType): Type of correlation to calculate.
     Returns:
         (ndarray): Historical rolling correlations.
     """
     n = len(x1)
     vv = np.empty(n-p)
     for i in range(n - p):
-        vv[i] = correlation(x1[i+1:i+p+1], x2[i+1:i+p+1])
+        if corr_type == CorrType.BETA:
+            vv[i] = beta(x1[i+1:i+p+1], x2[i+1:i+p+1])
+        else:
+            vv[i] = correlation(x1[i + 1:i + p + 1], x2[i + 1:i + p + 1], corr_type)
     return vv
 
 

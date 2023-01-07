@@ -16,3 +16,9 @@ class LossCalc(Enum):
     MAE = 'mae'
     HUBER = 'huber'
     PHUBER = 'phuber'
+
+
+class CorrType(Enum):
+    PEARSON = 'pearson'
+    SPEARMAN = 'spearman'
+    BETA = 'beta'

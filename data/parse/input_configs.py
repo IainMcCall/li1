@@ -4,7 +4,7 @@ Provides functions to parse input configurations into dicts.
 import configparser
 from datetime import datetime
 
-from enums import Model, LossCalc
+from enums import Model, LossCalc, CorrType
 
 
 def extract_model_configs():
@@ -27,6 +27,7 @@ def extract_model_configs():
               'weekday': config['MODEL_PARAMETERS']['DAY_OF_WEEK'],
               'nr_weeks': config.getint('MODEL_PARAMETERS', 'NR_WEEKS'),
               'corr_days': config.getint('MODEL_PARAMETERS', 'CORREL_DAYS'),
+              'corr_type': CorrType(config['MODEL_PARAMETERS']['CORREL_TYPE']),
               'vol_days': config.getint('MODEL_PARAMETERS', 'STDEV_DAYS'),
               'vol_df': config.getfloat('MODEL_PARAMETERS', 'STDEV_DF'),
               'return_lags': [int(i) for i in config['MODEL_PARAMETERS']['RETURN_LAGS'].split(',')],

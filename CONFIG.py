@@ -25,7 +25,8 @@ TRAIN_FUNCTIONAL_FORM = {'eq_index_price': 'log',
                          'inflation': 'absolute',
                          'vol_train': 'log',
                          'vol_target': 'log',
-                         'correlation_target': 'fisher'
+                         'correlation_target': 'fisher',
+                         'beta_target': 'absolute'
                          }
 LOSS_METHODS = [LossCalc.MAE, LossCalc.MSE, LossCalc.HUBER, LossCalc.PHUBER]
 EQUITY_INDEXES_TICKERS = {'SP500': 'GSPC',

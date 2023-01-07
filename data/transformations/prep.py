@@ -8,6 +8,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from enums import CorrType
 from data.parse.input_ts import extract_model_data, filter_day
 from data.transformations.returns import convert_levels_to_returns
 from analytics.stats.utils import overlapping_vols, overlapping_correlation
@@ -59,6 +60,7 @@ def select_model_data(returns, target_attributes, params):
     mvol_lags = params['vol_lags']
     corr_lags = params['corr_lags']
     eq_price = params['data']['equity_price']
+    corr_stat = 'beta' if params['corr_type'] == CorrType.BETA else 'correlation'
     y = {}
     x = {}
     x_new = {}
@@ -76,7 +78,7 @@ def select_model_data(returns, target_attributes, params):
             x_r['mvol_lag' + str(i)] = returns['vol_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         if not is_index:
             for i in corr_lags:
-                x_r['index_correlation_lag' + str(i)] = returns['correlation_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
+                x_r['index_correlation_lag' + str(i)] = returns[f'{corr_stat}_target_f'][r].values[-p-i:-i+1 if -i+1 != 0 else None]
         labels[r] = x_r.columns
         x[r] = np.array(x_r[:-1])
         x_new[r] = np.array(x_r.iloc[-1])
@@ -93,11 +95,13 @@ def generate_target_index_correlation(target_returns, target_attributes, params)
         params (dict): Model parameters.
     """
     corr_days = params['corr_days']
+    corr_type = params['corr_type']
     single_names = target_attributes.index.values[target_attributes['type'] == 'eq_name_price']
     historical_corrs = pd.DataFrame(index=target_returns.index.values[corr_days:], columns=single_names)
     for t in historical_corrs:
         i = '^' + target_attributes.at[t, 'eq_index'] + '_' + params['data']['equity_price']
-        historical_corrs[t] = overlapping_correlation(target_returns[t].values, target_returns[i].values, corr_days)
+        historical_corrs[t] = overlapping_correlation(target_returns[t].values, target_returns[i].values, corr_days,
+                                                      corr_type)
     return historical_corrs
 
 
@@ -131,10 +135,11 @@ def run_data_transform(params):
                'train_f': convert_levels_to_returns(levels['train_f'], train_attributes, h=1),
                'target': convert_levels_to_returns(levels['target'], target_attributes, h=1),
                'target_f': convert_levels_to_returns(levels['target_f'], target_attributes, h=1)}
+    corr_stat = 'beta' if params['corr_type'] == CorrType.BETA else 'correlation'
     stats = {'vol_train': overlapping_vols(returns['train'], params['vol_days'], params['vol_df']),
              'vol_target': overlapping_vols(returns['target'], params['vol_days'], params['vol_df']),
-             'correlation_target': generate_target_index_correlation(returns['target'], target_attributes, params)}
-    for s in ['vol_train', 'vol_target', 'correlation_target']:
+             f'{corr_stat}_target': generate_target_index_correlation(returns['target'], target_attributes, params)}
+    for s in ['vol_train', 'vol_target', f'{corr_stat}_target']:
         stats[s + '_f'] = filter_day(stats[s], params['weekday'])
         returns[s + '_f'] = convert_levels_to_returns(stats[s + '_f'], train_attributes, h=1,
                                                       ff=CONFIG.TRAIN_FUNCTIONAL_FORM[s])
