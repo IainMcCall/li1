@@ -191,6 +191,6 @@ def rolling_avg_series(ts, n_days=5):
     """
     avg_data = ts.copy()
     for i in range(1, len(ts) - 1):
-        avg_data[i] = np.nanmean(ts[max(0, i - n_days): i+1])
+        avg_data[i] = np.nanmean(ts[max(0, i+1-n_days): i+1])
     avg_data[-1] = np.nanmean(ts[-n_days:])
     return avg_data

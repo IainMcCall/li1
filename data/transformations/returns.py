@@ -25,7 +25,7 @@ def ff_return(x, h, ff):
         return np.arctanh(x[h:]) - np.arctanh(x[:-h])
 
 
-def convert_levels_to_returns(ts, rf_attributes, h, ff='log'):
+def convert_levels_to_returns(ts, rf_attributes, h, ff=None):
     """
     Convert a time-series into a sets of historical returns over a h-day horizon.
 
