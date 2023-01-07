@@ -23,7 +23,15 @@ def filter_day(x, day_of_week):
     Returns:
         (pandas.core.Frame.DataFrame): DataFrame filtered to only include day of week.
     """
-    return x[list(d.weekday() == CONFIG.WEEKDAY_MAPPING[day_of_week] for d in x.index)]
+    target_day = CONFIG.WEEKDAY_MAPPING[day_of_week]
+    day_mask = []
+    day_gap = 0
+    for d in x.index:
+        day_gap += 1
+        if d.weekday() == target_day or day_gap == 5:
+            day_mask.append(d)
+            day_gap = 0
+    return x[x.index.isin(day_mask)]
 
 
 def extract_model_data(infile, params, fill_method='prev'):
